@@ -345,7 +345,11 @@ static int __init byo_switcheroo_init(void)
 		struct acpi_buffer buf = { ACPI_ALLOCATE_BUFFER, NULL };
 		acpi_handle handle;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0)
+		handle = ACPI_HANDLE(&pdev->dev);
+#else
 		handle = DEVICE_ACPI_HANDLE(&pdev->dev);
+#endif
 		if (!handle)
 			continue;
 
@@ -364,7 +368,12 @@ static int __init byo_switcheroo_init(void)
 		kfree(buf.pointer);
 	}
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,5,0)
+	ret = vga_switcheroo_register_handler(&byo_switcheroo_handler,
+						   VGA_SWITCHEROO_CAN_SWITCH_DDC);
+#else
 	ret = vga_switcheroo_register_handler(&byo_switcheroo_handler);
+#endif
 	if (ret) {
 		printk(KERN_ERR "BYO-switcheroo failed to register handler\n");
 		return ret;
@@ -373,7 +382,9 @@ static int __init byo_switcheroo_init(void)
 	printk(KERN_INFO "BYO-switcheroo handler registered\n");
 
 	if (dummy_client) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,5,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0)
+		vga_switcheroo_register_client(dis_dev, &byo_switcheroo_ops, false);
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(3,5,0)
 		vga_switcheroo_register_client(dis_dev, &byo_switcheroo_ops);
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
 		ret = vga_switcheroo_register_client(dis_dev,

@@ -231,7 +231,11 @@ static bool asus_switcheroo_dsm_pci_probe(struct pci_dev *pdev)
 	acpi_status status;
 	int ret;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0)
+	handle = ACPI_HANDLE(&pdev->dev);
+#else
 	handle = DEVICE_ACPI_HANDLE(&pdev->dev);
+#endif
 	if (!handle)
 		return false;
 
@@ -275,7 +279,11 @@ static bool asus_switcheroo_dsm_detect(void)
 		if (!asus_switcheroo_dsm_pci_probe(pdev))
 			return false;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0)
+		handle = ACPI_HANDLE(&pdev->dev);
+#else
 		handle = DEVICE_ACPI_HANDLE(&pdev->dev);
+#endif
 		if (!handle)
 			return false;
 
@@ -319,10 +327,18 @@ static int __init asus_switcheroo_init(void)
 	if (!asus_switcheroo_dsm_detect())
 		return 0;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,5,0)
+	vga_switcheroo_register_handler(&asus_dsm_handler,
+						   VGA_SWITCHEROO_CAN_SWITCH_DDC);
+#else
 	vga_switcheroo_register_handler(&asus_dsm_handler);
-
+#endif
 	if (dummy_client)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,5,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0)
+		vga_switcheroo_register_client(discrete_dev,
+					       &asus_switcheroo_ops,
+						   false);
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(3,5,0)
 		vga_switcheroo_register_client(discrete_dev,
 					       &asus_switcheroo_ops);
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)

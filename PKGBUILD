@@ -41,12 +41,10 @@ package_byo-switcheroo-git() {
 	cd "$srcdir/${pkgbase%-git}"
 
 	install -dm 755 "${pkgdir}/usr/lib/systemd/system-sleep"
-	install -Dm 755 asus-switcheroo.sh /usr/lib/systemd/system-sleep/asus-switcheroo.sh
+	install -Dm 755 asus-switcheroo.sh "${pkgdir}/usr/lib/systemd/system-sleep/asus-switcheroo.sh"
 
-	install -Dm 644 byo-switcheroo.ko "${pkgdir}"/usr/lib/modules/${_extramodules}/byo-switcheroo.ko
-	install -dm 755 asus-switcheroo-pm /etc/pm/sleep.d/75-asus-switcheroo-pm
-
-	gzip "${pkgdir}/usr/lib/modules/${_extramodules}/byo-switcheroo.ko"
+	install -Dm 644 byo-switcheroo.ko "${pkgdir}/${_extramodules}/byo-switcheroo.ko"
+	gzip "${pkgdir}/${_extramodules}/byo-switcheroo.ko"
 }
 
 package_byo-switcheroo-dkms-git() {
@@ -55,7 +53,7 @@ package_byo-switcheroo-dkms-git() {
 	cd "$srcdir/${pkgbase%-git}"
 
 	install -dm 755 "${pkgdir}/usr/lib/systemd/system-sleep"
-	install -Dm 755 asus-switcheroo.sh /usr/lib/systemd/system-sleep/asus-switcheroo.sh
+	install -Dm 755 asus-switcheroo.sh "${pkgdir}/usr/lib/systemd/system-sleep/asus-switcheroo.sh"
 
 	install -dm 755 "${pkgdir}/usr/src/${pkgbase}-${pkgver}/"
 	install -Dm 644 Makefile byo-switcheroo.c "${pkgdir}/usr/src/${pkgbase}-${pkgver}/"
